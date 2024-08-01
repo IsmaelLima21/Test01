@@ -1,0 +1,1107 @@
+<html><head><base href="https://websim.ai/flashcards/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyFlash: Elegant Flashcards</title>
+<link href='https://fonts.googleapis.com/css?family=Montserrat|Sofia|Lato|Raleway' rel='stylesheet'>
+<link href="https://fonts.cdnfonts.com/css/gill-sans-2" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Raleway';
+    font-size: 20px;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    min-height: 100vh;
+    color: #333;
+  }
+  .left-container {
+    width: 300px;
+    background-color: #ffffff;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .right-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 30px;
+    position: relative;
+  }
+  h1, h2 {
+    color: #424242;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  .categories {
+    margin-bottom: 20px;
+  }
+  .category {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 8px;
+    transition: background-color 1.0s;
+  }
+  .category:hover {
+    background-color: #f0f0f0;
+  }
+  .category-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+  }
+  .category-name {
+    font-size: 16px;
+    flex-grow: 1;
+  }
+  .category-count {
+    margin-left: auto;
+    color: #888;
+    font-size: 14px;
+  }
+  .category-remove {
+    margin-left: 10px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  .flashcard {
+    width: 420px;
+    height: 740px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+  .flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 1.0s;
+    transform-style: preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+  }
+  .flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.22);
+    background-color: #ffffff;
+  }
+  .flashcard-back {
+    transform: rotateY(180deg);
+  }
+  .flashcard-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .flashcard-description {
+    font-size: 16px;
+    line-height: 120%;
+    color: #666;
+  }
+  .flashcard-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .card-number {
+    font-size: 14px;
+    color: #888;
+  }
+  .add-to-stack {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .nav-button {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+  }
+  input[type="text"], input[type="file"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  button {
+    background-color: #fff;
+    border: 1px solid #e8e8e8;
+    color: #666;
+    padding: 6px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #fff;
+    border: 1px solid #666;
+  }
+  .color-option {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 5px;
+    cursor: pointer;
+    /*border: 1px solid #666;*/
+  }
+  .miniature-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .miniature-card {
+    width: 80px;
+    height: 120px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background-color: #fff;
+  }
+  .miniature-actions {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .miniature-actions button {
+    padding: 2px 5px;
+    font-size: 8px;
+  }
+  .save-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    background-color: #ff1f4b;
+    color: white;
+    border-radius: 7px;
+    opacity: 0;
+    transition: opacity 2.0s ease;
+  }
+  .save-indicator.show {
+    opacity: 1;
+  }
+  .edit-card-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.3);
+    overflow-y: auto;
+  }
+  .edit-card-content {
+    background-color: #fefefe;
+    margin: 7% auto;
+    padding: 30px;
+    border: 1px solid #ff2954;
+    width: 60%;
+    max-width: 480px;
+    border-radius: 12px;
+  }
+  .close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: normal;
+    cursor: pointer;
+  }
+  .close-modal:hover,
+  .close-modal:focus {
+    color: #ff2954;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .new-card-miniature {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff2954;
+    border: 1px solid #ff2954;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(255, 41, 84,0.1); 
+  }
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-top: 10px;
+  }
+
+  .color-option {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  .color-option:hover, .color-option.selected {
+    border-color: #333;
+  }
+
+  .color-option[data-color="gradient-1"] {
+    background: linear-gradient(to right, #ff9a9e, #fad0c4);
+  }
+
+  .color-option[data-color="gradient-2"] {
+    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+  }
+
+  .color-option[data-color="gradient-3"] {
+    background: linear-gradient(to right, #d4fc79, #96e6a1);
+  }
+
+  .color-option[data-color="gradient-4"] {
+    background: linear-gradient(to right, #ffecd2, #fcb69f);
+  }
+
+  .color-option[data-color="gradient-5"] {
+    background: linear-gradient(to right, #84fab0, #8fd3f4);
+  }
+
+  .color-option[data-color="paper-1"] {
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none" stroke="%23ccc" stroke-width="0.5"/></svg>');
+  }
+
+  .color-option[data-color="paper-2"] {
+    background-color: #f9f9f9;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="1" fill="%23ccc"/></svg>');
+  }
+
+  .color-option[data-color="paper-3"] {
+    background-color: #f5f5f5;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M0 0 L10 10 M10 0 L0 10" stroke="%23ddd" stroke-width="0.5"/></svg>');
+  }
+
+  .color-option[data-color="paper-4"] {
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="1" fill="%23eee"/><rect width="1" height="100" fill="%23eee"/></svg>');
+  }
+
+  .color-option[data-color="paper-5"] {
+    background-color: #fafafa;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="25" fill="none" stroke="%23eee" stroke-width="0.5"/></svg>');
+  }
+
+</style>
+</head>
+<body>
+  <div class="left-container" id="leftContainer">
+    <h1>Categories</h1>
+    <div class="categories" id="categoriesContainer">
+      <!-- Categories will be dynamically populated here -->
+    </div>
+    <div id="miniatures" style="margin-top: 20px;">
+      <h2>Cards in <span id="currentStackName">Default Stack</span></h2>
+      <div class="miniature-container" id="miniatureContainer"></div>
+    </div>
+    <div id="stackManagement" style="margin-top: 20px;">
+      <h2>Stack Management</h2>
+      <button id="newStackBtn">New Stack</button>
+      <button id="saveStackBtn">Save Stack</button>
+      <button id="exportStackBtn">Export Stack</button>
+      <input type="file" id="importStackInput" accept=".json" style="display: none;">
+      <button id="importStackBtn">Import Stack</button>
+      <button id="removeStackBtn">Remove Stack</button>
+    </div>
+  </div>
+  
+  <div class="right-container">
+    <div class="flashcard" id="flashcard">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="flashcard-title" id="frontCardTitle">Flashcard Title</div>
+          <div class="flashcard-description" id="frontText">This is a brief description or question for the flashcard. Tap to see the answer!</div>
+          <img id="frontCardImage" class="card-image" src="" alt="" style="display: none; max-width: 100%; max-height: 50%;">
+          <audio id="frontCardAudio" controls style="display: none; margin-top: 10px;"></audio>
+        </div>
+        <div class="flashcard-back">
+          <div class="flashcard-title" id="backCardTitle">Answer Title</div>
+          <div class="flashcard-description" id="backText"></div>
+          <img id="backCardImage" class="card-image" src="" alt="" style="display: none; max-width: 100%; max-height: 50%;">
+          <audio id="backCardAudio" controls style="display: none; margin-top: 10px;"></audio>
+        </div>
+      </div>
+    </div>
+    <div class="flashcard-controls">
+      <button class="nav-button" id="prevBtn">&#8592;</button>
+      <div class="card-number">
+        <span id="currentCardNumber">1</span> / <span id="totalCards">5</span>
+      </div>
+      <button class="add-to-stack" id="addToStackBtn">Archive Card</button>
+      <button class="nav-button" id="nextBtn">&#8594;</button>
+    </div>
+	<div class="reorder-controls">
+      <button id="moveUpBtn">Move Up</button>
+      <button id="moveDownBtn">Move Down</button>
+    </div>
+
+  </div>
+
+  <div class="save-indicator" id="saveIndicator">Stack Saved!</div>
+
+<div id="editCardModal" class="edit-card-modal">
+    <div class="edit-card-content">
+      <span class="close-modal">&times;</span>
+      <h2 id="editCardTitle">Edit Card</h2>
+      <input type="text" id="editFrontTitle" placeholder="Front Card Title">
+      <select id="frontTitleFont">
+	<option value="Lato">Lato</option>
+	<option value="Montserrat">Montserrat</option>
+	<option value="Raleway">Raleway</option>
+	<option value="Sofia">Sofia</option>
+        <option value="Arial">Arial</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+      <textarea id="editFrontText" placeholder="Front side text"></textarea>
+      <select id="frontTextFont">
+	<option value="Lato">Lato</option>
+	<option value="Montserrat">Montserrat</option>
+	<option value="Raleway">Raleway</option>
+	<option value="Sofia">Sofia</option>
+        <option value="Arial">Arial</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+      <input type="file" id="editFrontImage" accept="image/*">
+      <button class="remove-media-btn" id="removeFrontImage">Remove Front Image</button>
+      <input type="file" id="editFrontAudio" accept="audio/*">
+      <button class="remove-media-btn" id="removeFrontAudio">Remove Front Audio</button>
+      <input type="text" id="editBackTitle" placeholder="Back Card Title">
+      <select id="backTitleFont">
+	<option value="Lato">Lato</option>
+	<option value="Montserrat">Montserrat</option>
+	<option value="Raleway">Raleway</option>
+	<option value="Sofia">Sofia</option>
+        <option value="Arial">Arial</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+      <textarea id="editBackText" placeholder="Back side text"></textarea>
+      <select id="backTextFont">
+	<option value="Lato">Lato</option>
+	<option value="Montserrat">Montserrat</option>
+	<option value="Raleway">Raleway</option>
+	<option value="Sofia">Sofia</option>
+        <option value="Arial">Arial</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+      <input type="file" id="editBackImage" accept="image/*">
+      <button class="remove-media-btn" id="removeBackImage">Remove Back Image</button>
+      <input type="file" id="editBackAudio" accept="audio/*">
+      <button class="remove-media-btn" id="removeBackAudio">Remove Back Audio</button>
+      <div class="color-grid">
+        <div class="color-option" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
+        <div class="color-option" style="background-color: #FFB3BA;" data-color="#ffc2c8"></div>
+        <div class="color-option" style="background-color: #BAFFC9;" data-color="#d0fbd9"></div>
+        <div class="color-option" style="background-color: #BAE1FF;" data-color="#cce9ff"></div>
+        <div class="color-option" style="background-color: #FFFFBA;" data-color="#ffffad"></div>
+        <div class="color-option" style="background-color: #FFDFBA;" data-color="#ffecd6"></div>
+        <div class="color-option" style="background-color: #E0BBE4;" data-color="#de99e5"></div>
+        <div class="color-option" style="background-color: #D4F0F0;" data-color="#D4F0F0"></div>
+        <div class="color-option" style="background-color: #FFC6FF;" data-color="#FFC6FF"></div>
+        <div class="color-option" style="background-color: #FFDAB9;" data-color="#FFDAB9"></div>
+        <div class="color-option" style="background-color: #B0E0E6;" data-color="#B0E0E6"></div>
+        <div class="color-option" style="background-color: #F0E68C;" data-color="#F0E68C"></div>
+        <div class="color-option" data-color="gradient-1"></div>
+        <div class="color-option" data-color="gradient-2"></div>
+        <div class="color-option" data-color="gradient-3"></div>
+        <div class="color-option" data-color="gradient-4"></div>
+        <div class="color-option" data-color="gradient-5"></div>
+        <div class="color-option" data-color="paper-1"></div>
+        <div class="color-option" data-color="paper-2"></div>
+        <div class="color-option" data-color="paper-3"></div>
+        <div class="color-option" data-color="paper-4"></div>
+        <div class="color-option" data-color="paper-5"></div>
+        <div class="color-option" style="background-color: #98FB98;" data-color="#98FB98"></div>
+        <div class="color-option" style="background-color: #DDA0DD;" data-color="#DDA0DD"></div>
+        <div class="color-option" style="background-color: #F0FFF0;" data-color="#F0FFF0"></div>
+        <div class="color-option" style="background-color: #F5F5DC;" data-color="#F5F5DC"></div>
+        <div class="color-option" style="background-color: #FFF0F5;" data-color="#FFF0F5"></div>
+        <div class="color-option" style="background-color: #E6E6FA;" data-color="#E6E6FA"></div>
+      </div>
+      <button id="saveEditBtn">Save Changes</button>
+    </div>
+  </div>
+
+  <script>
+    let flashcardStacks = {
+      default: [
+        { frontTitle: "Geography", backTitle: "Answer", frontText: "What is the capital of France?", backText: "Paris", color: "#FFB3BA", frontTitleFont: "Arial", frontTextFont: "Arial", backTitleFont: "Arial", backTextFont: "Arial" },
+        { frontTitle: "Literature", backTitle: "Answer", frontText: "Who wrote 'Romeo and Juliet'?", backText: "William Shakespeare", color: "#BAFFC9", frontTitleFont: "Arial", frontTextFont: "Arial", backTitleFont: "Arial", backTextFont: "Arial" },
+        { frontTitle: "Chemistry", backTitle: "Answer", frontText: "What is the chemical symbol for gold?", backText: "Au", color: "#BAE1FF", frontTitleFont: "Arial", frontTextFont: "Arial", backTitleFont: "Arial", backTextFont: "Arial" },
+        { frontTitle: "History", backTitle: "Answer", frontText: "In which year did World War II end?", backText: "1945", color: "#FFFFBA", frontTitleFont: "Arial", frontTextFont: "Arial", backTitleFont: "Arial", backTextFont: "Arial" },
+        { frontTitle: "Astronomy", backTitle: "Answer", frontText: "What is the largest planet in our solar system?", backText: "Jupiter", color: "#FFDFBA", frontTitleFont: "Arial", frontTextFont: "Arial", backTitleFont: "Arial", backTextFont: "Arial" }
+      ]
+    };
+
+
+    let currentStack = 'default';
+    let currentCardIndex = 0;
+    let selectedColor = "#FFB3BA";
+
+    const flashcardElement = document.getElementById('flashcard');
+    const frontCardTitleElement = document.getElementById('frontCardTitle');
+    const backCardTitleElement = document.getElementById('backCardTitle');
+    const frontTextElement = document.getElementById('frontText');
+    const backTextElement = document.getElementById('backText');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const newStackBtn = document.getElementById('newStackBtn');
+    const saveStackBtn = document.getElementById('saveStackBtn');
+    const frontCardImage = document.getElementById('frontCardImage');
+    const backCardImage = document.getElementById('backCardImage');
+    const frontCardAudio = document.getElementById('frontCardAudio');
+    const backCardAudio = document.getElementById('backCardAudio');
+    const colorOptions = document.querySelectorAll('.color-option');
+    const exportStackBtn = document.getElementById('exportStackBtn');
+    const importStackBtn = document.getElementById('importStackBtn');
+    const importStackInput = document.getElementById('importStackInput');
+    const miniatureContainer = document.getElementById('miniatureContainer');
+    const saveIndicator = document.getElementById('saveIndicator');
+    const editCardModal = document.getElementById('editCardModal');
+    const editCardTitle = document.getElementById('editCardTitle');
+    const closeModal = document.querySelector('.close-modal');
+    const editFrontTitleInput = document.getElementById('editFrontTitle');
+    const editBackTitleInput = document.getElementById('editBackTitle');
+    const editFrontTextInput = document.getElementById('editFrontText');
+    const editBackTextInput = document.getElementById('editBackText');
+    const editFrontImageInput = document.getElementById('editFrontImage');
+    const editBackImageInput = document.getElementById('editBackImage');
+    const editFrontAudioInput = document.getElementById('editFrontAudio');
+    const editBackAudioInput = document.getElementById('editBackAudio');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    const currentCardNumberElement = document.getElementById('currentCardNumber');
+    const totalCardsElement = document.getElementById('totalCards');
+    const categoriesContainer = document.getElementById('categoriesContainer');
+    const currentStackNameElement = document.getElementById('currentStackName');
+    const removeStackBtn = document.getElementById('removeStackBtn');
+      const moveUpBtn = document.getElementById('moveUpBtn');
+    const moveDownBtn = document.getElementById('moveDownBtn');
+    const removeFrontImageBtn = document.getElementById('removeFrontImage');
+    const removeBackImageBtn = document.getElementById('removeBackImage');
+    const removeFrontAudioBtn = document.getElementById('removeFrontAudio');
+    const removeBackAudioBtn = document.getElementById('removeBackAudio');
+    const frontTitleFontSelect = document.getElementById('frontTitleFont');
+    const frontTextFontSelect = document.getElementById('frontTextFont');
+    const backTitleFontSelect = document.getElementById('backTitleFont');
+    const backTextFontSelect = document.getElementById('backTextFont');
+
+    function updateCard() {
+      if (flashcardStacks[currentStack] && flashcardStacks[currentStack].length > 0) {
+        const currentCard = flashcardStacks[currentStack][currentCardIndex];
+        frontCardTitleElement.textContent = currentCard.frontTitle;
+        backCardTitleElement.textContent = currentCard.backTitle;
+        frontTextElement.textContent = currentCard.frontText;
+        backTextElement.textContent = currentCard.backText;
+        flashcardElement.classList.remove('flipped');
+        
+        document.querySelector('.flashcard-front').style.backgroundColor = currentCard.color;
+        document.querySelector('.flashcard-back').style.backgroundColor = currentCard.color;
+
+	frontCardTitleElement.style.fontFamily = currentCard.frontTitleFont;
+        frontTextElement.style.fontFamily = currentCard.frontTextFont;
+        backCardTitleElement.style.fontFamily = currentCard.backTitleFont;
+        backTextElement.style.fontFamily = currentCard.backTextFont;
+        
+        if (currentCard.frontImage) {
+          frontCardImage.src = currentCard.frontImage;
+          frontCardImage.style.display = 'block';
+        } else {
+          frontCardImage.style.display = 'none';
+        }
+        
+        if (currentCard.backImage) {
+          backCardImage.src = currentCard.backImage;
+          backCardImage.style.display = 'block';
+        } else {
+          backCardImage.style.display = 'none';
+        }
+
+        if (currentCard.frontAudio) {
+          frontCardAudio.src = currentCard.frontAudio;
+          frontCardAudio.style.display = 'block';
+        } else {
+          frontCardAudio.style.display = 'none';
+        }
+
+        if (currentCard.backAudio) {
+          backCardAudio.src = currentCard.backAudio;
+          backCardAudio.style.display = 'block';
+        } else {
+          backCardAudio.style.display = 'none';
+        }
+
+        currentCardNumberElement.textContent = currentCardIndex + 1;
+        totalCardsElement.textContent = flashcardStacks[currentStack].length;
+      } else {
+        // If the current stack is empty or doesn't exist
+        frontCardTitleElement.textContent = "No Cards";
+        backCardTitleElement.textContent = "No Cards";
+        frontTextElement.textContent = "This stack is empty. Add some cards!";
+        backTextElement.textContent = "This stack is empty. Add some cards!";
+        currentCardNumberElement.textContent = "0";
+        totalCardsElement.textContent = "0";
+      }
+
+      updateMiniatures();
+      currentStackNameElement.textContent = currentStack;
+    }
+
+    function addCard(frontTitle, backTitle, frontText, backText, frontImage, backImage, frontAudio, backAudio, color) {
+      if (!flashcardStacks[currentStack]) {
+        flashcardStacks[currentStack] = [];
+      }
+      flashcardStacks[currentStack].push({ frontTitle, backTitle, frontText, backText, frontImage, backImage, frontAudio, backAudio, color });
+      updateCard();
+      saveToLocalStorage();
+      updateCategories();
+    }
+
+    function createNewStack(stackName) {
+      if (!flashcardStacks[stackName]) {
+        flashcardStacks[stackName] = [];
+        saveToLocalStorage();
+        updateCategories();
+      }
+    }
+
+    function updateMiniatures() {
+      miniatureContainer.innerHTML = '';
+      
+      // Add the "New Card" miniature
+      const newCardMiniature = document.createElement('div');
+      newCardMiniature.className = 'miniature-card new-card-miniature';
+      newCardMiniature.innerHTML = '+';
+      newCardMiniature.onclick = openNewCardModal;
+      miniatureContainer.appendChild(newCardMiniature);
+
+      if (flashcardStacks[currentStack]) {
+        flashcardStacks[currentStack].forEach((card, index) => {
+          const miniature = document.createElement('div');
+          miniature.className = 'miniature-card';
+          miniature.style.backgroundColor = card.color;
+          miniature.textContent = card.frontTitle;
+          miniature.onclick = () => {
+            currentCardIndex = index;
+            updateCard();
+          };
+          const actions = document.createElement('div');
+          actions.className = 'miniature-actions';
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Edit';
+          editBtn.onclick = (e) => {
+            e.stopPropagation();
+            openEditModal(index);
+          };
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteCard(index);
+          };
+          actions.appendChild(editBtn);
+          actions.appendChild(deleteBtn);
+          miniature.appendChild(actions);
+          miniatureContainer.appendChild(miniature);
+        });
+      }
+    }
+
+    function saveToLocalStorage() {
+      localStorage.setItem('flashcardStacks', JSON.stringify(flashcardStacks));
+      showSaveIndicator();
+    }
+
+    function loadFromLocalStorage() {
+      const savedStacks = localStorage.getItem('flashcardStacks');
+      if (savedStacks) {
+        flashcardStacks = JSON.parse(savedStacks);
+        updateCard();
+        updateCategories();
+      }
+    }
+
+    function showSaveIndicator() {
+      saveIndicator.classList.add('show');
+      setTimeout(() => {
+        saveIndicator.classList.remove('show');
+      }, 2000);
+    }
+
+    function openEditModal(index) {
+      currentCardIndex = index;
+      const currentCard = flashcardStacks[currentStack][currentCardIndex];
+      editFrontTitleInput.value = currentCard.frontTitle;
+      editBackTitleInput.value = currentCard.backTitle;
+      editFrontTextInput.value = currentCard.frontText;
+      editBackTextInput.value = currentCard.backText;
+      selectedColor = currentCard.color;
+      frontTitleFontSelect.value = currentCard.frontTitleFont;
+      frontTextFontSelect.value = currentCard.frontTextFont;
+      backTitleFontSelect.value = currentCard.backTitleFont;
+      backTextFontSelect.value = currentCard.backTextFont;
+      editCardTitle.textContent = "Edit Card";
+      editCardModal.style.display = 'block';
+
+          // Conectar los botones de remover imagen y audio
+    document.getElementById('removeFrontImage').onclick = function() {
+        currentCard.frontImage = ''; // Remover imagen frontal
+        updateCardDisplay(); // Actualizar la tarjeta en el display
+    };
+    
+    document.getElementById('removeBackImage').onclick = function() {
+        currentCard.backImage = ''; // Remover imagen trasera
+        updateCardDisplay(); // Actualizar la tarjeta en el display
+    };
+
+    document.getElementById('removeFrontAudio').onclick = function() {
+        currentCard.frontAudio = ''; // Remover audio frontal
+        updateCardDisplay(); // Actualizar la tarjeta en el display
+    };
+
+    document.getElementById('removeBackAudio').onclick = function() {
+        currentCard.backAudio = ''; // Remover audio trasero
+        updateCardDisplay(); // Actualizar la tarjeta en el display
+    };
+
+    }
+
+function updateCardDisplay() {
+    const currentCard = flashcardStacks[currentStack][currentCardIndex];
+
+    // Actualizar la imagen frontal y trasera en la interfaz
+    const frontImageElement = document.querySelector('.card-front img');
+    const backImageElement = document.querySelector('.card-back img');
+    const frontAudioElement = document.querySelector('.card-front audio');
+    const backAudioElement = document.querySelector('.card-back audio');
+
+    if (frontImageElement) {
+        frontImageElement.src = currentCard.frontImage || '';
+        if (!currentCard.frontImage) frontImageElement.remove();
+    }
+
+    if (backImageElement) {
+        backImageElement.src = currentCard.backImage || '';
+        if (!currentCard.backImage) backImageElement.remove();
+    }
+
+    if (frontAudioElement) {
+        frontAudioElement.src = currentCard.frontAudio || '';
+        if (!currentCard.frontAudio) frontAudioElement.remove();
+    }
+
+    if (backAudioElement) {
+        backAudioElement.src = currentCard.backAudio || '';
+        if (!currentCard.backAudio) backAudioElement.remove();
+    }
+
+    // Si es necesario, puedes agregar más código para refrescar otros elementos de la tarjeta
+}
+
+
+
+
+ function openNewCardModal() {
+      editFrontTitleInput.value = '';
+      editBackTitleInput.value = '';
+      editFrontTextInput.value = '';
+      editBackTextInput.value = '';
+      editFrontImageInput.value = '';
+      editBackImageInput.value = '';
+      editFrontAudioInput.value = '';
+      editBackAudioInput.value = '';
+      selectedColor = '#FFB3BA';
+      frontTitleFontSelect.value = 'Arial';
+      frontTextFontSelect.value = 'Arial';
+      backTitleFontSelect.value = 'Arial';
+      backTextFontSelect.value = 'Arial';
+      currentCardIndex = flashcardStacks[currentStack] ? flashcardStacks[currentStack].length : 0;
+      editCardTitle.textContent = "New Card";
+      editCardModal.style.display = 'block';
+    }
+
+    function closeEditModal() {
+      editCardModal.style.display = 'none';
+    }
+
+    function saveEditedCard() {
+      if (!flashcardStacks[currentStack]) {
+        flashcardStacks[currentStack] = [];
+      }
+      if (currentCardIndex === flashcardStacks[currentStack].length) {
+        // This is a new card
+        flashcardStacks[currentStack].push({});
+      }
+      const currentCard = flashcardStacks[currentStack][currentCardIndex];
+      currentCard.frontTitle = editFrontTitleInput.value;
+      currentCard.backTitle = editBackTitleInput.value;
+      currentCard.frontText = editFrontTextInput.value;
+      currentCard.backText = editBackTextInput.value;
+      currentCard.color = selectedColor;
+	 currentCard.frontTitleFont = frontTitleFontSelect.value;
+      currentCard.frontTextFont = frontTextFontSelect.value;
+      currentCard.backTitleFont = backTitleFontSelect.value;
+      currentCard.backTextFont = backTextFontSelect.value;
+
+
+      handleFileInput(editFrontImageInput, 'frontImage', currentCard);
+      handleFileInput(editBackImageInput, 'backImage', currentCard);
+      handleFileInput(editFrontAudioInput, 'frontAudio', currentCard);
+      handleFileInput(editBackAudioInput, 'backAudio', currentCard);
+
+      updateCard();
+      saveToLocalStorage();
+      closeEditModal();
+      updateCategories();
+    }
+
+    function handleFileInput(input, property, card) {
+      if (input.files.length > 0) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          card[property] = e.target.result;
+          updateCard();
+        };
+        if (property.includes('Image')) {
+          reader.readAsDataURL(file);
+        } else if (property.includes('Audio')) {
+          reader.readAsArrayBuffer(file);
+        }
+      }
+    }
+
+    function deleteCard(index) {
+      if (confirm('Are you sure you want to delete this card?')) {
+        flashcardStacks[currentStack].splice(index, 1);
+        if (currentCardIndex >= flashcardStacks[currentStack].length) {
+          currentCardIndex = flashcardStacks[currentStack].length - 1;
+        }
+        updateCard();
+        saveToLocalStorage();
+        updateCategories();
+      }
+    }
+
+    function updateCategories() {
+      categoriesContainer.innerHTML = '';
+      Object.keys(flashcardStacks).forEach((stackName, index) => {
+        const category = document.createElement('div');
+        category.className = 'category';
+        category.innerHTML = `
+          <div class="category-icon">${stackName[0].toUpperCase()}</div>
+          <span class="category-name">${stackName}</span>
+          <span class="category-count">${flashcardStacks[stackName].length} cards</span>
+          <span class="category-remove">&#10005;</span>
+        `;
+        category.onclick = () => {
+          currentStack = stackName;
+          currentCardIndex = 0;
+          updateCard();
+        };
+        
+        categoriesContainer.appendChild(category);
+      });
+    }
+
+    function removeStack(stackName) {
+      if (confirm(`Are you sure you want to remove the "${stackName}" stack?`)) {
+        delete flashcardStacks[stackName];
+        if (currentStack === stackName) {
+          currentStack = Object.keys(flashcardStacks)[0] || 'default';
+          currentCardIndex = 0;
+        }
+        updateCard();
+        saveToLocalStorage();
+        updateCategories();
+      }
+    }
+
+    flashcardElement.addEventListener('click', () => {
+      flashcardElement.classList.toggle('flipped');
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (flashcardStacks[currentStack] && flashcardStacks[currentStack].length > 0) {
+        currentCardIndex = (currentCardIndex - 1 + flashcardStacks[currentStack].length) % flashcardStacks[currentStack].length;
+        updateCard();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (flashcardStacks[currentStack] && flashcardStacks[currentStack].length > 0) {
+        currentCardIndex = (currentCardIndex + 1) % flashcardStacks[currentStack].length;
+        updateCard();
+      }
+    });
+
+    closeModal.addEventListener('click', closeEditModal);
+
+    saveEditBtn.addEventListener('click', saveEditedCard);
+
+    window.onclick = function(event) {
+      if (event.target == editCardModal) {
+        closeEditModal();
+      }
+    };
+
+    newStackBtn.addEventListener('click', () => {
+      const stackName = prompt("Enter a name for the new stack:");
+      if (stackName) {
+        createNewStack(stackName);
+        currentStack = stackName;
+        currentCardIndex = 0;
+        updateCard();
+      }
+    });
+
+    saveStackBtn.addEventListener('click', () => {
+      saveToLocalStorage();
+    });
+
+    removeStackBtn.addEventListener('click', () => {
+      removeStack(currentStack);
+    });
+
+    colorOptions.forEach(option => {
+      option.addEventListener('click', (e) => {
+        selectedColor = e.target.getAttribute('data-color');
+        document.querySelector('.flashcard-front').style.backgroundColor = selectedColor;
+        document.querySelector('.flashcard-back').style.backgroundColor = selectedColor;
+      });
+    });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar Sortable para el contenedor de miniaturas
+    var miniaturesContainer = document.getElementById('miniatureContainer');
+    new Sortable(miniaturesContainer, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var miniaturesContainer = document.getElementById('miniatureContainer');
+
+    // Inicializar Sortable
+    new Sortable(miniaturesContainer, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: function (evt) {
+            // Obtener el nuevo orden de las tarjetas
+            saveCardOrder();
+        }
+    });
+
+    // Función para guardar las tarjetas, incluyendo su orden
+    function saveCardOrder() {
+        var cards = miniaturesContainer.children;
+        var cardData = [];
+
+        Array.from(cards).forEach(function(card, index) {
+            // Suponiendo que cada tarjeta tiene un ID o algo que la identifique
+            var cardId = card.getAttribute('data-id'); 
+            var cardContent = {
+                id: cardId,
+                order: index, // Guardar el nuevo orden
+                // Aquí puedes agregar más propiedades que quieras guardar
+                // Por ejemplo, contenido, imagen, audio, etc.
+            };
+            cardData.push(cardContent);
+        });
+
+        // Guardar los datos de las tarjetas (incluyendo el nuevo orden) en localStorage o en la base de datos
+        localStorage.setItem('savedCards', JSON.stringify(cardData));
+    }
+
+    // Cargar las tarjetas guardadas, incluido su orden
+    function loadSavedCards() {
+        var savedCards = JSON.parse(localStorage.getItem('savedCards'));
+
+        if (savedCards) {
+            savedCards.sort(function(a, b) {
+                return a.order - b.order;
+            });
+
+            savedCards.forEach(function(cardData) {
+                // Reconstruir cada tarjeta y añadirla al DOM en el orden correcto
+                var card = createCardElement(cardData);
+                miniaturesContainer.appendChild(card);
+            });
+        }
+    }
+
+    loadSavedCards(); // Cargar las tarjetas al iniciar
+
+    // Aquí puedes tener tu función createCardElement() que crea las tarjetas basadas en los datos guardados
+});
+
+
+
+document.addEventListener('click', function(event) {
+    // Quitar imagen frontal
+    if (event.target.id === 'removeFrontImage') {
+        var card = event.target.closest('.card');
+        var frontImage = card.querySelector('.front img');
+        if (frontImage) {
+            frontImage.remove();
+        }
+    }
+
+    // Quitar audio frontal
+    if (event.target.id === 'removeFrontAudio') {
+        var card = event.target.closest('.card');
+        var frontAudio = card.querySelector('.front audio');
+        if (frontAudio) {
+            frontAudio.remove();
+        }
+    }
+
+    // Quitar imagen trasera
+    if (event.target.id === 'removeBackImage') {
+        var card = event.target.closest('.card');
+        var backImage = card.querySelector('.back img');
+        if (backImage) {
+            backImage.remove();
+        }
+    }
+
+    // Quitar audio trasero
+    if (event.target.id === 'removeBackAudio') {
+        var card = event.target.closest('.card');
+        var backAudio = card.querySelector('.back audio');
+        if (backAudio) {
+            backAudio.remove();
+        }
+    }
+});
+
+
+
+
+    exportStackBtn.addEventListener('click', () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(flashcardStacks[currentStack]));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", currentStack + "_flashcards.json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    });
+
+    importStackBtn.addEventListener('click', () => {
+      importStackInput.click();
+    });
+
+    importStackInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const importedStack = JSON.parse(e.target.result);
+            const stackName = prompt("Enter a name for the imported stack:");
+            if (stackName) {
+              flashcardStacks[stackName] = importedStack;
+              createNewStack(stackName);
+              currentStack = stackName;
+              currentCardIndex = 0;
+              updateCard();
+              saveToLocalStorage();
+              updateCategories();
+            }
+          } catch (error) {
+            console.error("Error importing stack:", error);
+            alert("Error importing stack. Please make sure the file is a valid JSON.");
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    loadFromLocalStorage();
+    updateCard();
+    updateCategories();
+  </script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+</body></html>
